@@ -1,0 +1,10 @@
+export const CANVAS_WIDTH = 800;
+export const CANVAS_HEIGHT = 600;
+export const CANVAS_COLOR = 0x999999;
+export const CIRCLE_START_X = 100;
+export const CIRCLE_START_Y = 100;
+export const CIRCLE_RADIUS = 50;
+export const CIRCLE_SCALE_UP = 1.5;
+export const SCALE_UP_DURATION = 1;
+export const CIRCLE_SCALE_DOWN = 1;
+export const SCALE_DOWN_DURATION = 1;
