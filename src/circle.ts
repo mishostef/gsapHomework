@@ -13,7 +13,7 @@ import {
   SCALE_DOWN_DURATION,
   SCALE_UP_DURATION,
 } from "./constants";
-import { createGrid } from "./utils";
+import { createCircle, createGrid } from "./utils";
 gsap.registerPlugin(PixiPlugin);
 PixiPlugin.registerPIXI(PIXI);
 
@@ -24,48 +24,39 @@ const app = new PIXI.Application({
 });
 
 document.body.appendChild(app.view as HTMLCanvasElement);
-const circle = createCircle(CIRCLE_START_X, CIRCLE_START_Y, CIRCLE_RADIUS, 0);
+
 const grid = createGrid();
 app.stage.addChild(grid);
+const circle = createCircle(CIRCLE_START_X, CIRCLE_START_Y, CIRCLE_RADIUS, 0);
+app.stage.addChild(circle);
 const circle2 = createCircle(100, 300, CIRCLE_RADIUS, 0x88ff33);
-
+app.stage.addChild(circle2);
 const circle3 = createCircle(100, 500, CIRCLE_RADIUS, 0xff33ed);
-const circles = [circle, circle2, circle3];
-circles.forEach((x, i) =>//maham go
-  setTimeout(() => {
-    animate(x);
-  }, 100 * i)
-);
-function animate(circle, ease?: string) {
+app.stage.addChild(circle3);
+
+animate(circle);
+animate(circle2, "linear", "elastic");
+animate(circle3, "sine", "bounce");
+
+function animate(circle, movementEase?: string, scalingEase?: string) {
   gsap.to(circle, {
     pixi: {
       x: 700,
     },
     duration: 2,
     delay: 1,
-    ...(ease && { ease }),
+    ...(movementEase && { ease: movementEase }),
   });
   gsap.to(circle, {
-    pixi: { scale: 1.5 },
-    duration: 1,
+    pixi: { scale: CIRCLE_SCALE_UP },
+    duration: SCALE_UP_DURATION,
     delay: 1,
-    ...(ease && { ease }),
+    ...(scalingEase && { ease: scalingEase + ".out" }),
   });
   gsap.to(circle, {
-    pixi: { scale: 1 },
-    duration: 1,
+    pixi: { scale: CIRCLE_SCALE_DOWN },
+    duration: SCALE_DOWN_DURATION,
     delay: 2,
-    ...(ease && { ease }),
+    ...(scalingEase && { ease: scalingEase + ".in" }),
   });
-}
-
-function createCircle(x, y, radius, color) {
-  const circle = new PIXI.Graphics();
-  circle.beginFill(color);
-  circle.drawCircle(0, 0, radius);
-  circle.endFill();
-  app.stage.addChild(circle);
-
-  circle.position.set(x, y);
-  return circle;
 }

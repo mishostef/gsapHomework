@@ -32,6 +32,7 @@ Promise.all([
   PIXI.Assets.load("../assets/speed-normal.png"),
   PIXI.Assets.load("../assets/speed-paused.png"),
 ]).then((x) => {
+  console.log(x);
   const gear40 = PIXI.Sprite.from(x[5]);
   spawnGear(gear40, { x: 400, y: 300 }, "+", 20);
   const gear12 = PIXI.Sprite.from(x[0]);
@@ -57,5 +58,10 @@ function spawnGear(
   sprite.anchor.set(0.5, 0.5);
   app.stage.addChild(sprite);
   const rotation = direction === "+" ? 360 : -360;
-  gsap.to(sprite, { pixi: { rotation }, duration, repeat: -1 });
+  gsap.to(sprite, {
+    pixi: { rotation },
+    duration,
+    repeat: -1,
+    overwrite: false,
+  });
 }
