@@ -8,7 +8,7 @@ import { Sprite, Texture } from "pixi.js";
 gsap.registerPlugin(PixiPlugin);
 PixiPlugin.registerPIXI(PIXI);
 
-const app = new PIXI.Application({
+export const app = new PIXI.Application({
   width: CANVAS_WIDTH,
   height: CANVAS_HEIGHT,
   backgroundColor: 0xaaaaaa,
@@ -18,31 +18,35 @@ document.body.appendChild(app.view as HTMLCanvasElement);
 const grid = createGrid();
 app.stage.addChild(grid);
 let anims;
-Promise.all([
-  PIXI.Assets.load("../assets/gear12.png"),
-  PIXI.Assets.load("../assets/gear16.png"),
-  PIXI.Assets.load("../assets/gear20.png"),
-  PIXI.Assets.load("../assets/gear24.png"),
-  PIXI.Assets.load("../assets/gear28.png"),
-  PIXI.Assets.load("../assets/gear40.png"),
-  PIXI.Assets.load("../assets/gearbox.png"),
-  PIXI.Assets.load("../assets/gears.png"),
-  PIXI.Assets.load("../assets/speed-fast.png"),
-  PIXI.Assets.load("../assets/speed-faster.png"),
-  PIXI.Assets.load("../assets/speed-normal.png"),
-  PIXI.Assets.load("../assets/speed-paused.png"),
-]).then((textures) => {
-  console.log(textures);
-  anims = anim(textures);
-  const gearTextures = [
-    textures[6],
-    textures[8],
-    textures[9],
-    textures[10],
-    textures[11],
-  ];
-  setControls(gearTextures);
-});
+Start();
+export function Start() {
+  Promise.all([
+    PIXI.Assets.load("../assets/gear12.png"),
+    PIXI.Assets.load("../assets/gear16.png"),
+    PIXI.Assets.load("../assets/gear20.png"),
+    PIXI.Assets.load("../assets/gear24.png"),
+    PIXI.Assets.load("../assets/gear28.png"),
+    PIXI.Assets.load("../assets/gear40.png"),
+    PIXI.Assets.load("../assets/gearbox.png"),
+    PIXI.Assets.load("../assets/gears.png"),
+    PIXI.Assets.load("../assets/speed-fast.png"),
+    PIXI.Assets.load("../assets/speed-faster.png"),
+    PIXI.Assets.load("../assets/speed-normal.png"),
+    PIXI.Assets.load("../assets/speed-paused.png"),
+  ]).then((textures) => {
+    console.log(textures);
+    anims = anim(textures);
+    const gearTextures = [
+      textures[6],
+      textures[8],
+      textures[9],
+      textures[10],
+      textures[11],
+    ];
+    setControls(gearTextures);
+  });
+}
+
 function setControls(gearTextures) {
   const [gearBox, fast, faster, normal, paused] = gearTextures.map(
     (texture) => {
@@ -64,7 +68,6 @@ function setControls(gearTextures) {
 
 function makeInteractive(buttons) {
   const [normal, paused, fast, faster] = buttons;
-  const [anim40, anim12, anim28, anim16, anim24, anim20] = anims;
   buttons.forEach((btn) => (btn.interactive = true));
   paused.on("pointertap", () => {
     anims.forEach((anim) => anim.pause());
@@ -82,18 +85,18 @@ function makeInteractive(buttons) {
 
 function anim(
   x: [
-    PIXI.Texture,
-    PIXI.Texture,
-    PIXI.Texture,
-    PIXI.Texture,
-    PIXI.Texture,
-    PIXI.Texture,
-    PIXI.Texture,
-    PIXI.Texture,
-    PIXI.Texture,
-    PIXI.Texture,
-    PIXI.Texture,
-    PIXI.Texture
+    Texture,
+    Texture,
+    Texture,
+    Texture,
+    Texture,
+    Texture,
+    Texture,
+    Texture,
+    Texture,
+    Texture,
+    Texture,
+    Texture
   ]
 ) {
   const gear40 = PIXI.Sprite.from(x[5]);
@@ -128,7 +131,6 @@ function spawnGear(
     pixi: { rotation },
     duration,
     repeat: -1,
-    //overwrite: false,
     ease: "linear",
   });
 }
