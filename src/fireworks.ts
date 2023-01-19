@@ -1,7 +1,7 @@
 import * as PIXI from "pixi.js";
 import { gsap } from "gsap";
 import { PixiPlugin } from "gsap/PixiPlugin";
-import { CANVAS_COLOR, CANVAS_HEIGHT, CANVAS_WIDTH } from "./constants";
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from "./constants";
 import { createGrid, createBox } from "./utils";
 gsap.registerPlugin(PixiPlugin);
 PixiPlugin.registerPIXI(PIXI);
@@ -15,10 +15,26 @@ const app = new PIXI.Application({
 document.body.appendChild(app.view as HTMLCanvasElement);
 const grid = createGrid();
 app.stage.addChild(grid);
+const bg = createInteractiveBg();
+bg.on("pointertap", ({ globalX: x, globalY: y }) => {
+  const randomColor =
+    (((Math.random() * 256) | 0) << 16) +
+    (((Math.random() * 256) | 0) << 8) +
+    ((Math.random() * 256) | 0);
+  const container = firework(x, y, randomColor);
+  app.stage.addChild(container);
+});
 
-const container = firework(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2, 0); //new PIXI.Container();
-// particle(0xabcd7777, container);
-app.stage.addChild(container);
+function createInteractiveBg() {
+  const bg = new PIXI.Graphics();
+  bg.beginFill(0xaaaaaa);
+  bg.drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  bg.alpha = 0;
+  bg.endFill();
+  app.stage.addChild(bg);
+  bg.interactive = true;
+  return bg;
+}
 
 function particle(color: number, parent: PIXI.Container) {
   const startX = 0;
@@ -50,12 +66,16 @@ function firework(x: number, y: number, color: number) {
   container.position.set(x, y);
 
   for (let i = 0; i < 100; i++) {
-    particle(0xffffff, container);
+    particle(color, container);
   }
   app.stage.addChild(container);
+  gsap.to(container, {
+    pixi: { y: "-=100" },
+    ease: "power2.in",
+    duration: 2,
+    onComplete: function () {
+      container.destroy();
+    },
+  });
   return container;
-}
-
-function randomIntFromInterval(min, max) {
-  return Math.floor(Math.random() * (max - min + 1) + min);
 }

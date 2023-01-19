@@ -1,8 +1,8 @@
 import * as PIXI from "pixi.js";
 import { gsap } from "gsap";
 import { PixiPlugin } from "gsap/PixiPlugin";
-import { CANVAS_COLOR, CANVAS_HEIGHT, CANVAS_WIDTH } from "./constants";
-import { createGrid, createBox } from "./utils";
+import { CANVAS_HEIGHT, CANVAS_WIDTH } from "./constants";
+import { createGrid } from "./utils";
 import { Sprite } from "pixi.js";
 
 gsap.registerPlugin(PixiPlugin);
@@ -40,7 +40,7 @@ Promise.all([
   const gear28 = PIXI.Sprite.from(x[4]);
   spawnGear(gear28, { x: 142, y: 130 }, "+", 14);
   const gear16 = PIXI.Sprite.from(x[1]);
-  spawnGear(gear16, { x: 542, y: 471 }, "+", 8);
+  spawnGear(gear16, { x: 542, y: 471 }, "-", 8);
   const gear24 = PIXI.Sprite.from(x[3]);
   spawnGear(gear24, { x: 676, y: 388 }, "+", 12);
   const gear20 = PIXI.Sprite.from(x[2]);
@@ -63,5 +63,6 @@ function spawnGear(
     duration,
     repeat: -1,
     overwrite: false,
+    ease: "linear",
   });
 }
