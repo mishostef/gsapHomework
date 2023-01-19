@@ -34,7 +34,6 @@ export function Start() {
     PIXI.Assets.load("../assets/speed-normal.png"),
     PIXI.Assets.load("../assets/speed-paused.png"),
   ]).then((textures) => {
-    console.log(textures);
     anims = anim(textures);
     const gearTextures = [
       textures[6],
@@ -56,7 +55,6 @@ function setControls(gearTextures) {
       return sprite;
     }
   );
-  console.log(gearBox);
   gearBox.position.set(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
   const width = fast.getBounds().width;
   paused.position.set(CANVAS_WIDTH / 2 - 1.65 * width, CANVAS_HEIGHT / 2);
@@ -121,8 +119,6 @@ function spawnGear(
   direction: string,
   duration: number
 ) {
-  const d = sprite.getBounds().width;
-  console.log(d);
   sprite.position.set(position.x, position.y);
   sprite.anchor.set(0.5, 0.5);
   app.stage.addChild(sprite);
