@@ -3,7 +3,7 @@ import { gsap } from "gsap";
 import { PixiPlugin } from "gsap/PixiPlugin";
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from "./constants";
 import { createGrid } from "./utils";
-import { Sprite } from "pixi.js";
+import { Sprite, Texture } from "pixi.js";
 
 gsap.registerPlugin(PixiPlugin);
 PixiPlugin.registerPIXI(PIXI);
@@ -33,19 +33,58 @@ Promise.all([
   PIXI.Assets.load("../assets/speed-paused.png"),
 ]).then((x) => {
   console.log(x);
-  const gear40 = PIXI.Sprite.from(x[5]);
-  spawnGear(gear40, { x: 400, y: 300 }, "+", 20);
-  const gear12 = PIXI.Sprite.from(x[0]);
-  spawnGear(gear12, { x: 300, y: 117 }, "-", 6);
-  const gear28 = PIXI.Sprite.from(x[4]);
-  spawnGear(gear28, { x: 142, y: 130 }, "+", 14);
-  const gear16 = PIXI.Sprite.from(x[1]);
-  spawnGear(gear16, { x: 542, y: 471 }, "-", 8);
-  const gear24 = PIXI.Sprite.from(x[3]);
-  spawnGear(gear24, { x: 676, y: 388 }, "+", 12);
-  const gear20 = PIXI.Sprite.from(x[2]);
-  spawnGear(gear20, { x: 212, y: 441 }, "-", 10);
+  const [anim40, anim12, anim28, anim16, anim24, anim20] = anim(x);
+  const gearTextures = [x[6], x[8], x[9], x[10], x[11]];
+  setControls(gearTextures);
 });
+function setControls(gearTextures) {
+  const [gearBox, fast, faster, normal, paused] = gearTextures.map(
+    (texture) => {
+      const sprite = PIXI.Sprite.from(texture);
+      sprite.anchor.set(0.5, 0.5);
+      app.stage.addChild(sprite);
+      return sprite;
+    }
+  );
+  console.log(gearBox);
+  gearBox.position.set(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+  const width = fast.getBounds().width;
+  paused.position.set(CANVAS_WIDTH / 2 - 1.65 * width, CANVAS_HEIGHT / 2);
+  normal.position.set(CANVAS_WIDTH / 2 - 0.55 * width, CANVAS_HEIGHT / 2);
+  fast.position.set(CANVAS_WIDTH / 2 + 0.55 * width, CANVAS_HEIGHT / 2);
+  faster.position.set(CANVAS_WIDTH / 2 + 1.65 * width, CANVAS_HEIGHT / 2);
+}
+function anim(
+  x: [
+    PIXI.Texture,
+    PIXI.Texture,
+    PIXI.Texture,
+    PIXI.Texture,
+    PIXI.Texture,
+    PIXI.Texture,
+    PIXI.Texture,
+    PIXI.Texture,
+    PIXI.Texture,
+    PIXI.Texture,
+    PIXI.Texture,
+    PIXI.Texture
+  ]
+) {
+  const gear40 = PIXI.Sprite.from(x[5]);
+  const anim40 = spawnGear(gear40, { x: 400, y: 300 }, "+", 20);
+  const gear12 = PIXI.Sprite.from(x[0]);
+  const anim12 = spawnGear(gear12, { x: 300, y: 117 }, "-", 6);
+  const gear28 = PIXI.Sprite.from(x[4]);
+  const anim28 = spawnGear(gear28, { x: 142, y: 130 }, "+", 14);
+  const gear16 = PIXI.Sprite.from(x[1]);
+  const anim16 = spawnGear(gear16, { x: 542, y: 471 }, "-", 8);
+  const gear24 = PIXI.Sprite.from(x[3]);
+  const anim24 = spawnGear(gear24, { x: 676, y: 388 }, "+", 12);
+  const gear20 = PIXI.Sprite.from(x[2]);
+  const anim20 = spawnGear(gear20, { x: 212, y: 441 }, "-", 10);
+  return [anim40, anim12, anim28, anim16, anim24, anim20];
+}
+
 function spawnGear(
   sprite: Sprite,
   position: { x: number; y: number },
@@ -58,11 +97,11 @@ function spawnGear(
   sprite.anchor.set(0.5, 0.5);
   app.stage.addChild(sprite);
   const rotation = direction === "+" ? 360 : -360;
-  gsap.to(sprite, {
+  return gsap.to(sprite, {
     pixi: { rotation },
     duration,
     repeat: -1,
-    overwrite: false,
+    //overwrite: false,
     ease: "linear",
   });
 }
