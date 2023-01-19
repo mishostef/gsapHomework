@@ -17,7 +17,7 @@ const app = new PIXI.Application({
 document.body.appendChild(app.view as HTMLCanvasElement);
 const grid = createGrid();
 app.stage.addChild(grid);
-
+let anims;
 Promise.all([
   PIXI.Assets.load("../assets/gear12.png"),
   PIXI.Assets.load("../assets/gear16.png"),
@@ -31,10 +31,16 @@ Promise.all([
   PIXI.Assets.load("../assets/speed-faster.png"),
   PIXI.Assets.load("../assets/speed-normal.png"),
   PIXI.Assets.load("../assets/speed-paused.png"),
-]).then((x) => {
-  console.log(x);
-  const [anim40, anim12, anim28, anim16, anim24, anim20] = anim(x);
-  const gearTextures = [x[6], x[8], x[9], x[10], x[11]];
+]).then((textures) => {
+  console.log(textures);
+  anims = anim(textures);
+  const gearTextures = [
+    textures[6],
+    textures[8],
+    textures[9],
+    textures[10],
+    textures[11],
+  ];
   setControls(gearTextures);
 });
 function setControls(gearTextures) {
@@ -53,7 +59,27 @@ function setControls(gearTextures) {
   normal.position.set(CANVAS_WIDTH / 2 - 0.55 * width, CANVAS_HEIGHT / 2);
   fast.position.set(CANVAS_WIDTH / 2 + 0.55 * width, CANVAS_HEIGHT / 2);
   faster.position.set(CANVAS_WIDTH / 2 + 1.65 * width, CANVAS_HEIGHT / 2);
+  makeInteractive([normal, paused, fast, faster]);
 }
+
+function makeInteractive(buttons) {
+  const [normal, paused, fast, faster] = buttons;
+  const [anim40, anim12, anim28, anim16, anim24, anim20] = anims;
+  buttons.forEach((btn) => (btn.interactive = true));
+  paused.on("pointertap", () => {
+    anims.forEach((anim) => anim.pause());
+  });
+  normal.on("pointertap", () => {
+    anims.forEach((anim) => anim.play());
+  });
+  fast.on("pointertap", () => {
+    anims.forEach((anim) => anim.timeScale(2));
+  });
+  faster.on("pointertap", () => {
+    anims.forEach((anim) => anim.timeScale(4));
+  });
+}
+
 function anim(
   x: [
     PIXI.Texture,
@@ -82,6 +108,7 @@ function anim(
   const anim24 = spawnGear(gear24, { x: 676, y: 388 }, "+", 12);
   const gear20 = PIXI.Sprite.from(x[2]);
   const anim20 = spawnGear(gear20, { x: 212, y: 441 }, "-", 10);
+
   return [anim40, anim12, anim28, anim16, anim24, anim20];
 }
 
