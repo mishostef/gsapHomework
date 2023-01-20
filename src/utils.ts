@@ -1,4 +1,6 @@
 import * as PIXI from "pixi.js";
+import { CANVAS_WIDTH, CANVAS_HEIGHT } from "./constants";
+import { app } from "./gears";
 export function createGrid() {
   const grid = new PIXI.Graphics();
   grid.lineStyle({ color: 0xffffff, width: 1, alpha: 0.2 });
@@ -44,4 +46,15 @@ export function createCircle(x, y, radius, color) {
   circle.endFill();
   circle.position.set(x, y);
   return circle;
+}
+
+export function createInteractiveBg() {
+  const bg = new PIXI.Graphics();
+  bg.beginFill(0xaaaaaa);
+  bg.drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+  bg.alpha = 0;
+  bg.endFill();
+  //app.stage.addChild(bg);
+  bg.interactive = true;
+  return bg;
 }

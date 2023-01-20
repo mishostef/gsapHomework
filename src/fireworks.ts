@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { gsap } from "gsap";
 import { PixiPlugin } from "gsap/PixiPlugin";
 import { CANVAS_HEIGHT, CANVAS_WIDTH } from "./constants";
-import { createGrid, createBox } from "./utils";
+import { createGrid, createBox, createInteractiveBg } from "./utils";
 gsap.registerPlugin(PixiPlugin);
 PixiPlugin.registerPIXI(PIXI);
 
@@ -16,6 +16,7 @@ document.body.appendChild(app.view as HTMLCanvasElement);
 const grid = createGrid();
 app.stage.addChild(grid);
 const bg = createInteractiveBg();
+app.stage.addChild(bg);
 bg.on("pointertap", ({ globalX: x, globalY: y }) => {
   const randomColor =
     (((Math.random() * 256) | 0) << 16) +
@@ -24,17 +25,6 @@ bg.on("pointertap", ({ globalX: x, globalY: y }) => {
   const container = firework(x, y, randomColor);
   app.stage.addChild(container);
 });
-
-function createInteractiveBg() {
-  const bg = new PIXI.Graphics();
-  bg.beginFill(0xaaaaaa);
-  bg.drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
-  bg.alpha = 0;
-  bg.endFill();
-  app.stage.addChild(bg);
-  bg.interactive = true;
-  return bg;
-}
 
 function particle(color: number, parent: PIXI.Container) {
   const startX = 0;
