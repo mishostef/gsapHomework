@@ -17,31 +17,66 @@ const turnSec = sec - 15;
 const turnMin = minutes - 15;
 const turnHours = hours > 12 ? hours - 3 : hours - 15;
 
-setIntervalVariant();
+gsapSetGsapToVariant();
+//setIntervalVariant();
 //initClock();
 function initClock() {
   secHand.rotation = (turnSec * Math.PI) / 30;
   minHand.rotation = (turnMin * Math.PI) / 30;
   hourHand.rotation = (turnHours * Math.PI) / 6;
   gsap.to(secHand, {
-    pixi: { rotation: 360 },
+    pixi: { rotation: "+=360" },
     duration: 60,
     repeat: -1,
     ease: "linear",
   });
   gsap.to(minHand, {
-    pixi: { rotation: 360 },
+    pixi: { rotation: "+=360" },
     duration: 60 * 60,
     repeat: -1,
     ease: "linear",
   });
   gsap.to(hourHand, {
-    pixi: { rotation: 360 },
+    pixi: { rotation: "+=360" },
     duration: 60 * 60 * 12,
     repeat: -1,
     ease: "linear",
   });
 }
+function gsapSetGsapToVariant() {
+  const [hours, minutes, sec] = getSecondsMinutesHours();
+  const turnSec = sec - 15;
+  const turnMin = minutes - 15;
+  const turnHours = hours < 12 ? hours - 3 : hours - 15;
+  gsap.set(secHand, {
+    pixi: { rotation: turnSec * 6 },
+  });
+  gsap.set(minHand, {
+    pixi: { rotation: turnMin * 6 },
+  });
+  gsap.set(hourHand, {
+    pixi: { rotation: turnHours * 30 },
+  });
+  gsap.to(secHand, {
+    pixi: { rotation: "+=360" },
+    duration: 60,
+    repeat: -1,
+    ease: "linear",
+  });
+  gsap.to(minHand, {
+    pixi: { rotation: "+=360" },
+    duration: 60 * 60,
+    repeat: -1,
+    ease: "linear",
+  });
+  gsap.to(hourHand, {
+    pixi: { rotation: "+=360" },
+    duration: 60 * 60 * 12,
+    repeat: -1,
+    ease: "linear",
+  });
+}
+
 function setIntervalVariant() {
   setInterval(() => {
     const [hours, minutes, sec] = getSecondsMinutesHours();
