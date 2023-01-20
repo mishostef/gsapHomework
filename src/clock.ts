@@ -17,8 +17,8 @@ const turnSec = sec - 15;
 const turnMin = minutes - 15;
 const turnHours = hours > 12 ? hours - 3 : hours - 15;
 
-gsapSetGsapToVariant();
-//setIntervalVariant();
+//gsapSetGsapToVariant();
+setIntervalVariant();
 //initClock();
 function initClock() {
   secHand.rotation = (turnSec * Math.PI) / 30;

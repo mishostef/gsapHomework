@@ -29,33 +29,41 @@ bg.on("mousemove", ({ globalX: x, globalY: y }) => {
   }
   mouseLastY = y;
   if (direction === "down") {
-    left.forEach((zip, i) => {
-      if (isLeftOpened(y, zip, i)) {
-        zip.x -= 20;
-        indicesLeft.push(i);
-      }
-    });
-    right.forEach((zip, i) => {
-      if (isRightOpened(y, zip, i)) {
-        zip.x += 20;
-        indicesRight.push(i);
-      }
-    });
+    onMouseMovingDown(y);
   } else {
-    left.forEach((zip, i) => {
-      if (isLeftClosed(y, zip, i)) {
-        zip.x += 20;
-        indicesLeft = indicesLeft.filter((index) => index !== i);
-      }
-    });
-    right.forEach((zip, i) => {
-      if (isRightClosed(y, zip, i)) {
-        zip.x -= 20;
-        indicesRight = indicesRight.filter((index) => index !== i);
-      }
-    });
+    onMouseMovingUp(y);
   }
 });
+
+function onMouseMovingUp(y: number) {
+  left.forEach((zip, i) => {
+    if (isLeftClosed(y, zip, i)) {
+      zip.x += 20;
+      indicesLeft = indicesLeft.filter((index) => index !== i);
+    }
+  });
+  right.forEach((zip, i) => {
+    if (isRightClosed(y, zip, i)) {
+      zip.x -= 20;
+      indicesRight = indicesRight.filter((index) => index !== i);
+    }
+  });
+}
+
+function onMouseMovingDown(y: number) {
+  left.forEach((zip, i) => {
+    if (isLeftOpened(y, zip, i)) {
+      zip.x -= 20;
+      indicesLeft.push(i);
+    }
+  });
+  right.forEach((zip, i) => {
+    if (isRightOpened(y, zip, i)) {
+      zip.x += 20;
+      indicesRight.push(i);
+    }
+  });
+}
 
 function isRightClosed(y: number, zip: PIXI.Graphics, i: number) {
   return y >= zip.y - 20 && y <= zip.y + 20 && indicesRight.includes(i);
