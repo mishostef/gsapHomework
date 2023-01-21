@@ -2,8 +2,9 @@ import * as PIXI from "pixi.js";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "./constants";
 import { gsap } from "gsap";
 import { PixiPlugin } from "gsap/PixiPlugin";
-import { createInteractiveBg } from "./utils";
+import { createGrid, createInteractiveBg } from "./utils";
 const verOffset = 30;
+const zipDist = 15;
 let mouseLastY = CANVAS_HEIGHT;
 
 gsap.registerPlugin(PixiPlugin);
@@ -15,22 +16,30 @@ const app = new PIXI.Application({
   backgroundColor: 0,
 });
 document.body.appendChild(app.view as HTMLCanvasElement);
+
 const bg = createInteractiveBg();
 app.stage.addChild(bg);
 
+const grid = createGrid();
+app.stage.addChild(grid);
+
 const [left, right] = getTrapezoids();
 let indicesLeft = [];
-let indicesRight = [];
 bg.on("mousemove", ({ globalX: x, globalY: y }) => {
+  if (y > CANVAS_HEIGHT) {
+    y = CANVAS_HEIGHT;
+  }
   console.log(`current x is ${x},     current y is ${y}`);
-  let direction = "down";
+  let direction = "none";
   if (y < mouseLastY) {
     direction = "up";
+  } else if (y > mouseLastY) {
+    direction = "down";
   }
   mouseLastY = y;
   if (direction === "down") {
     onMouseMovingDown(y);
-  } else {
+  } else if (direction === "up") {
     onMouseMovingUp(y);
   }
 });
@@ -38,47 +47,46 @@ bg.on("mousemove", ({ globalX: x, globalY: y }) => {
 function onMouseMovingUp(y: number) {
   left.forEach((zip, i) => {
     if (isLeftClosed(y, zip, i)) {
-      zip.x += 20;
+      gsap.to(zip, { pixi: { x: CANVAS_WIDTH / 2, rotation: 0 } });
+      console.log(right[i].pivot);
+      gsap.to(right[i], { pixi: { x: CANVAS_WIDTH / 2, rotation: -180 } });
       indicesLeft = indicesLeft.filter((index) => index !== i);
-    }
-  });
-  right.forEach((zip, i) => {
-    if (isRightClosed(y, zip, i)) {
-      zip.x -= 20;
-      indicesRight = indicesRight.filter((index) => index !== i);
     }
   });
 }
 
 function onMouseMovingDown(y: number) {
   left.forEach((zip, i) => {
+    const normalizedDeltaY = i * 15;
     if (isLeftOpened(y, zip, i)) {
-      zip.x -= 20;
+      gsap.to(zip, {
+        pixi: {
+          x: CANVAS_WIDTH / 2 - normalizedDeltaY,
+          rotation: (-45 * i) / left.length / 2,
+        },
+      });
       indicesLeft.push(i);
-    }
-  });
-  right.forEach((zip, i) => {
-    if (isRightOpened(y, zip, i)) {
-      zip.x += 20;
-      indicesRight.push(i);
-    }
-  });
-}
 
-function isRightClosed(y: number, zip: PIXI.Graphics, i: number) {
-  return y >= zip.y - 20 && y <= zip.y + 20 && indicesRight.includes(i);
+      gsap.to(right[i], {
+        pixi: {
+          x: CANVAS_WIDTH / 2 + normalizedDeltaY,
+          rotation: -180 - (-45 * i) / left.length / 2,
+        },
+      });
+    }
+  });
 }
 
 function isLeftClosed(y: number, zip: PIXI.Graphics, i: number) {
-  return y >= zip.y - 20 && y <= zip.y + 20 && indicesLeft.includes(i);
+  return (
+    y >= zip.y - zipDist && y <= zip.y + zipDist && indicesLeft.includes(i)
+  );
 }
 
 function isLeftOpened(y: number, zip: PIXI.Graphics, i: number) {
-  return y >= zip.y - 20 && y <= zip.y + 20 && !indicesLeft.includes(i);
-}
-
-function isRightOpened(y: number, zip: PIXI.Graphics, i: number) {
-  return y >= zip.y - 20 && y <= zip.y + 20 && !indicesRight.includes(i);
+  return (
+    y >= zip.y - zipDist && y <= zip.y + zipDist && !indicesLeft.includes(i)
+  );
 }
 
 function getTrapezoids() {
@@ -110,6 +118,7 @@ function drawTrapezoid(x, y, color) {
   trapezoid.beginFill(color);
   trapezoid.drawPolygon(-10, -15, 10, -5, 10, 5, -10, 15);
   trapezoid.position.set(x, y);
+  trapezoid.pivot.set(0, 0);
   trapezoid.endFill();
   return trapezoid;
 }
