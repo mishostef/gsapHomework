@@ -54,7 +54,16 @@ export function createInteractiveBg() {
   bg.drawRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
   bg.alpha = 0;
   bg.endFill();
-  //app.stage.addChild(bg);
   bg.interactive = true;
   return bg;
+}
+
+export function createTrapezoid(x, y, color) {
+  const trapezoid = new PIXI.Graphics();
+  trapezoid.beginFill(color);
+  trapezoid.drawPolygon(-10, -15, 10, -5, 10, 5, -10, 15);
+  trapezoid.position.set(x, y);
+  trapezoid.pivot.set(0, 0);
+  trapezoid.endFill();
+  return trapezoid;
 }

@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "./constants";
 import { gsap } from "gsap";
 import { PixiPlugin } from "gsap/PixiPlugin";
-import { createGrid, createInteractiveBg } from "./utils";
+import { createGrid, createInteractiveBg, createTrapezoid } from "./utils";
 const verOffset = 30;
 const zipDist = 15;
 let mouseLastY = CANVAS_HEIGHT;
@@ -24,7 +24,7 @@ const grid = createGrid();
 app.stage.addChild(grid);
 
 const [left, right] = getTrapezoids();
-let indicesLeft = [];
+let indices = [];
 bg.on("mousemove", ({ globalX: x, globalY: y }) => {
   if (y > CANVAS_HEIGHT) {
     y = CANVAS_HEIGHT;
@@ -46,47 +46,51 @@ bg.on("mousemove", ({ globalX: x, globalY: y }) => {
 
 function onMouseMovingUp(y: number) {
   left.forEach((zip, i) => {
-    if (isLeftClosed(y, zip, i)) {
-      gsap.to(zip, { pixi: { x: CANVAS_WIDTH / 2, rotation: 0 } });
-      console.log(right[i].pivot);
-      gsap.to(right[i], { pixi: { x: CANVAS_WIDTH / 2, rotation: -180 } });
-      indicesLeft = indicesLeft.filter((index) => index !== i);
+    if (isClosed(y, zip, i)) {
+      gsap.to(zip, {
+        pixi: { x: CANVAS_WIDTH / 2, rotation: 0 },
+        ease: "none",
+      });
+      gsap.to(right[i], {
+        pixi: { x: CANVAS_WIDTH / 2, rotation: -180 },
+        ease: "none",
+      });
+      indices = indices.filter((index) => index !== i);
     }
   });
 }
 
 function onMouseMovingDown(y: number) {
   left.forEach((zip, i) => {
-    const normalizedDeltaY = i * 15;
-    if (isLeftOpened(y, zip, i)) {
+    const normalizedDeltaY = i * 25 + i * i;
+    const rotation = (-45 * i) / (left.length * 2);
+    if (isOpened(y, zip, i)) {
       gsap.to(zip, {
         pixi: {
           x: CANVAS_WIDTH / 2 - normalizedDeltaY,
-          rotation: (-45 * i) / left.length / 2,
+          rotation,
         },
+        ease: "none",
       });
-      indicesLeft.push(i);
+      indices.push(i);
 
       gsap.to(right[i], {
         pixi: {
           x: CANVAS_WIDTH / 2 + normalizedDeltaY,
-          rotation: -180 - (-45 * i) / left.length / 2,
+          rotation: -180 - rotation,
         },
+        ease: "none",
       });
     }
   });
 }
 
-function isLeftClosed(y: number, zip: PIXI.Graphics, i: number) {
-  return (
-    y >= zip.y - zipDist && y <= zip.y + zipDist && indicesLeft.includes(i)
-  );
+function isClosed(y: number, zip: PIXI.Graphics, i: number) {
+  return y <= zip.y + zipDist && indices.includes(i);
 }
 
-function isLeftOpened(y: number, zip: PIXI.Graphics, i: number) {
-  return (
-    y >= zip.y - zipDist && y <= zip.y + zipDist && !indicesLeft.includes(i)
-  );
+function isOpened(y: number, zip: PIXI.Graphics, i: number) {
+  return y >= zip.y - zipDist && !indices.includes(i);
 }
 
 function getTrapezoids() {
@@ -94,12 +98,12 @@ function getTrapezoids() {
   const right: PIXI.Graphics[] = [];
   for (let i = 0; i < 10; i++) {
     const vertStep = 55;
-    const trapezoidLeft = drawTrapezoid(
+    const trapezoidLeft = createTrapezoid(
       CANVAS_WIDTH / 2,
       CANVAS_HEIGHT - verOffset - vertStep * i,
       0xbbbbbb
     );
-    const trapezoidRight = drawTrapezoid(
+    const trapezoidRight = createTrapezoid(
       CANVAS_WIDTH / 2,
       CANVAS_HEIGHT - verOffset - vertStep * i - vertStep / 2,
       0xccc777
@@ -111,14 +115,4 @@ function getTrapezoids() {
     app.stage.addChild(trapezoidRight);
   }
   return [left, right];
-}
-
-function drawTrapezoid(x, y, color) {
-  const trapezoid = new PIXI.Graphics();
-  trapezoid.beginFill(color);
-  trapezoid.drawPolygon(-10, -15, 10, -5, 10, 5, -10, 15);
-  trapezoid.position.set(x, y);
-  trapezoid.pivot.set(0, 0);
-  trapezoid.endFill();
-  return trapezoid;
 }
