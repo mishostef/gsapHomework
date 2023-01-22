@@ -1,6 +1,6 @@
 import * as PIXI from "pixi.js";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "./constants";
-import { app } from "./gears";
+
 export function createGrid() {
   const grid = new PIXI.Graphics();
   grid.lineStyle({ color: 0xffffff, width: 1, alpha: 0.2 });

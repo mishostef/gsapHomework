@@ -41,7 +41,7 @@ const tint = gsap.to(fourth, {
 
 [rotate, blur, skew, tint].forEach((anim, i) => {
   anim.pause();
-  let clickedOnce = true;
+  let clickedOnce = false;
   squares[i].on("pointertap", () => {
     clickedOnce = !clickedOnce;
     if (clickedOnce) {
