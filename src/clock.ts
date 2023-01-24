@@ -8,22 +8,13 @@ document.body.appendChild(app.view as HTMLCanvasElement);
 gsap.registerPlugin(PixiPlugin);
 PixiPlugin.registerPIXI(PIXI);
 
-const secHand = createHand(300);
-const minHand = createHand(200);
-const hourHand = createHand(100);
-const [hours, minutes, sec] = getSecondsMinutesHours();
-console.log(`${hours}:${minutes}:${sec}`);
-const turnSec = sec - 15;
-const turnMin = minutes - 15;
-const turnHours = hours > 12 ? hours - 3 : hours - 15;
+const secHand = createHand(300, "second");
+const minHand = createHand(200, "minute");
+const hourHand = createHand(100, "hour");
 
-//gsapSetGsapToVariant();
 setIntervalVariant();
 //initClock();
 function initClock() {
-  secHand.rotation = (turnSec * Math.PI) / 30;
-  minHand.rotation = (turnMin * Math.PI) / 30;
-  hourHand.rotation = (turnHours * Math.PI) / 6;
   gsap.to(secHand, {
     pixi: { rotation: "+=360" },
     duration: 60,
@@ -43,47 +34,24 @@ function initClock() {
     ease: "linear",
   });
 }
-function gsapSetGsapToVariant() {
-  const [hours, minutes, sec] = getSecondsMinutesHours();
-  const turnSec = sec - 15;
-  const turnMin = minutes - 15;
-  const turnHours = hours < 12 ? hours - 3 : hours - 15;
-  gsap.set(secHand, {
-    pixi: { rotation: turnSec * 6 },
-  });
-  gsap.set(minHand, {
-    pixi: { rotation: turnMin * 6 },
-  });
-  gsap.set(hourHand, {
-    pixi: { rotation: turnHours * 30 },
-  });
-  gsap.to(secHand, {
-    pixi: { rotation: "+=360" },
-    duration: 60,
-    repeat: -1,
-    ease: "linear",
-  });
-  gsap.to(minHand, {
-    pixi: { rotation: "+=360" },
-    duration: 60 * 60,
-    repeat: -1,
-    ease: "linear",
-  });
-  gsap.to(hourHand, {
-    pixi: { rotation: "+=360" },
-    duration: 60 * 60 * 12,
-    repeat: -1,
-    ease: "linear",
-  });
-}
+gsap.to(minHand, {
+  pixi: { rotation: "+=360" },
+  duration: 60 * 60,
+  repeat: -1,
+  ease: "linear",
+});
+gsap.to(hourHand, {
+  pixi: { rotation: "+=360" },
+  duration: 60 * 60 * 12,
+  repeat: -1,
+  ease: "linear",
+});
 
 function setIntervalVariant() {
   setInterval(() => {
     const [hours, minutes, sec] = getSecondsMinutesHours();
-    const turnSec = sec - 15;
-    const turnMin = minutes - 15;
-    const turnHours = hours < 12 ? hours - 3 : hours - 15;
-    gsap.set(secHand, {
+    const { turnSec, turnMin, turnHours } = getHandsTurns(sec, minutes, hours);
+    const t = gsap.set(secHand, {
       pixi: { rotation: turnSec * 6 },
     });
     gsap.set(minHand, {
@@ -95,6 +63,13 @@ function setIntervalVariant() {
   }, 1000);
 }
 
+function getHandsTurns(sec: number, minutes: number, hours: number) {
+  const turnSec = sec - 15;
+  const turnMin = minutes - 15;
+  const turnHours = hours < 12 ? hours - 3 : hours - 15;
+  return { turnSec, turnMin, turnHours };
+}
+
 function getSecondsMinutesHours() {
   const date = new Date();
   const hours = date.getHours();
@@ -102,11 +77,24 @@ function getSecondsMinutesHours() {
   const sec = date.getSeconds();
   return [hours, minutes, sec];
 }
-function createHand(length) {
+function createHand(length, name) {
+  const [hours, minutes, sec] = getSecondsMinutesHours();
+  const { turnSec, turnMin, turnHours } = getHandsTurns(sec, minutes, hours);
   const hand = new PIXI.Graphics();
   hand.beginFill(0);
   hand.drawRect(0, 0, length, 20);
   hand.position.set(CANVAS_WIDTH / 2, CANVAS_HEIGHT / 2);
+  let rotation;
+  if (name === "second") {
+    rotation = (turnSec * Math.PI) / 30;
+  } else if (name === "minute") {
+    rotation = (turnMin * Math.PI) / 30;
+  } else if (name === "hour") {
+    rotation = (turnHours * Math.PI) / 6;
+  }else{
+    console.log("error")
+  }
+  hand.rotation = rotation;
   hand.pivot.set(0, 10);
   hand.endFill();
   app.stage.addChild(hand);
