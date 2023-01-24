@@ -34,29 +34,39 @@ app.stage.addChild(circle2);
 const circle3 = createCircle(100, 500, CIRCLE_RADIUS, 0xff33ed);
 app.stage.addChild(circle3);
 
+const tl = gsap.timeline();
 animate(circle);
 animate(circle2, "linear", "elastic");
 animate(circle3, "sine", "bounce");
 
 function animate(circle, movementEase?: string, scalingEase?: string) {
-  gsap.to(circle, {
-    pixi: {
-      x: 700,
+  tl.to(
+    circle,
+    {
+      pixi: {
+        x: 700,
+      },
+      duration: 2,
+      ...(movementEase && { ease: movementEase }),
     },
-    duration: 2,
-    delay: 1,
-    ...(movementEase && { ease: movementEase }),
-  });
-  gsap.to(circle, {
-    pixi: { scale: CIRCLE_SCALE_UP },
-    duration: SCALE_UP_DURATION,
-    delay: 1,
-    ...(scalingEase && { ease: scalingEase + ".out" }),
-  });
-  gsap.to(circle, {
-    pixi: { scale: CIRCLE_SCALE_DOWN },
-    duration: SCALE_DOWN_DURATION,
-    delay: 2,
-    ...(scalingEase && { ease: scalingEase + ".in" }),
-  });
+    1
+  );
+  tl.to(
+    circle,
+    {
+      pixi: { scale: CIRCLE_SCALE_UP },
+      duration: SCALE_UP_DURATION,
+      ...(scalingEase && { ease: scalingEase + ".out" }),
+    },
+    1
+  );
+  tl.to(
+    circle,
+    {
+      pixi: { scale: CIRCLE_SCALE_DOWN },
+      duration: SCALE_DOWN_DURATION,
+      ...(scalingEase && { ease: scalingEase + ".in" }),
+    },
+    2
+  );
 }

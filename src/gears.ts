@@ -18,6 +18,7 @@ document.body.appendChild(app.view as HTMLCanvasElement);
 const grid = createGrid();
 app.stage.addChild(grid);
 let anims;
+const tl = gsap.timeline();
 Start();
 export function Start() {
   Promise.all([
@@ -67,17 +68,22 @@ function setControls(gearTextures) {
 function makeInteractive(buttons) {
   const [normal, paused, fast, faster] = buttons;
   buttons.forEach((btn) => (btn.interactive = true));
+  const masterTimeline = gsap.timeline();
+  masterTimeline.play();
+  anims.forEach((tl) => {
+    masterTimeline.add(tl, 0);
+  });
   paused.on("pointertap", () => {
-    anims.forEach((anim) => anim.pause());
+    gsap.to(masterTimeline.timeScale(0), {duration:5 });
   });
   normal.on("pointertap", () => {
-    anims.forEach((anim) => anim.play());
+    gsap.to(masterTimeline.timeScale(1), {duration:5 });
   });
   fast.on("pointertap", () => {
-    anims.forEach((anim) => anim.timeScale(2));
+    gsap.to(masterTimeline, { timeScale: 2, duration: 4 });
   });
   faster.on("pointertap", () => {
-    anims.forEach((anim) => anim.timeScale(4));
+    gsap.to(masterTimeline, { timeScale: 7, duration: 10 });
   });
 }
 
@@ -123,10 +129,14 @@ function spawnGear(
   sprite.anchor.set(0.5, 0.5);
   app.stage.addChild(sprite);
   const rotation = direction === "+" ? 360 : -360;
-  return gsap.to(sprite, {
-    pixi: { rotation },
-    duration,
-    repeat: -1,
-    ease: "linear",
-  });
+  return tl.to(
+    sprite,
+    {
+      pixi: { rotation },
+      duration,
+      repeat: -1,
+      ease: "linear",
+    },
+    0
+  );
 }
