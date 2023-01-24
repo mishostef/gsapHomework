@@ -74,10 +74,10 @@ function makeInteractive(buttons) {
     masterTimeline.add(tl, 0);
   });
   paused.on("pointertap", () => {
-    gsap.to(masterTimeline.timeScale(0), {duration:5 });
+    gsap.to(masterTimeline, { timeScale: 0, duration: 5 });
   });
   normal.on("pointertap", () => {
-    gsap.to(masterTimeline.timeScale(1), {duration:5 });
+    gsap.to(masterTimeline, { timeScale: 1, duration: 5 });
   });
   fast.on("pointertap", () => {
     gsap.to(masterTimeline, { timeScale: 2, duration: 4 });
