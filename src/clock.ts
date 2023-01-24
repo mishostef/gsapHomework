@@ -12,8 +12,8 @@ const secHand = createHand(300, "second");
 const minHand = createHand(200, "minute");
 const hourHand = createHand(100, "hour");
 
-setIntervalVariant();
-//initClock();
+//setIntervalVariant();
+initClock();
 function initClock() {
   gsap.to(secHand, {
     pixi: { rotation: "+=360" },
@@ -34,18 +34,6 @@ function initClock() {
     ease: "linear",
   });
 }
-gsap.to(minHand, {
-  pixi: { rotation: "+=360" },
-  duration: 60 * 60,
-  repeat: -1,
-  ease: "linear",
-});
-gsap.to(hourHand, {
-  pixi: { rotation: "+=360" },
-  duration: 60 * 60 * 12,
-  repeat: -1,
-  ease: "linear",
-});
 
 function setIntervalVariant() {
   setInterval(() => {
