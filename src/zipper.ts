@@ -33,75 +33,114 @@ const zipper = createZipper();
 app.stage.addChild(zipper);
 
 let indices = [];
-bg.on("mousemove", ({ globalX: x, globalY: y }) => {
-  if (y > CANVAS_HEIGHT) {
-    y = CANVAS_HEIGHT;
-  }
-  console.log(`current x is ${x},     current y is ${y}`);
-  let direction = "none";
-  if (y < mouseLastY) {
-    direction = "up";
-  } else if (y > mouseLastY) {
-    direction = "down";
-  }
-  mouseLastY = y;
-  if (direction === "down") {
-    onMouseMovingDown(y);
-  } else if (direction === "up") {
-    onMouseMovingUp(y);
-  }
-  console.log(indices);
-});
+bg.on("mousemove", ({ globalX: x, globalY: y }) => handleMouseMove(x, y));
 
+function handleMouseMove(x, y) {
+  {
+    if (y > CANVAS_HEIGHT) {
+      y = CANVAS_HEIGHT;
+    }
+    let direction = "none";
+    if (y < mouseLastY) {
+      direction = "up";
+    } else if (y > mouseLastY) {
+      direction = "down";
+    }
+    mouseLastY = y;
+    if (direction === "down") {
+      onMouseMovingDown(y);
+    } else if (direction === "up") {
+      onMouseMovingUp(y);
+    }
+  }
+}
 function onMouseMovingUp(y: number) {
+  const tl = gsap.timeline();
+  tl.addLabel("zz", "<");
   left.forEach((zip, i) => {
     if (isClosed(y, zip, i)) {
-      gsap.to(zip, {
-        pixi: { x: CANVAS_WIDTH / 2, rotation: 0 },
-        ease: "none",
-      });
-      gsap.to(right[i], {
-        pixi: { x: CANVAS_WIDTH / 2, rotation: -180 },
-        ease: "none",
-      });
-
-      indices = indices.filter((index) => index !== i);
-      gsap.to(zipper, {
-        pixi: { y: (indices.length + 1) * 50 },
-        ease: "none",
-      });
+      processUp(tl, zip, i);
     }
   });
 }
 
+function processUp(tl: gsap.core.Timeline, zip: PIXI.Graphics, i: number) {
+  const l = tl.to(
+    zip,
+    {
+      pixi: { x: CANVAS_WIDTH / 2, rotation: 0 },
+      ease: "none",
+    },
+    "zz"
+  );
+  const r = tl.to(
+    right[i],
+    {
+      pixi: { x: CANVAS_WIDTH / 2, rotation: -180 },
+      ease: "none",
+    },
+    "zz"
+  );
+  const dur = 2 * r.duration();
+  indices = indices.filter((index) => index !== i);
+  tl.to(
+    zipper,
+    {
+      pixi: { y: (indices.length + 1) * 50 },
+      ease: "none",
+    },
+    "zz+=dur"
+  );
+}
+
 function onMouseMovingDown(y: number) {
+  const tl = gsap.timeline();
+  tl.to(zipper, {
+    pixi: {
+      y,
+      ease: "linear",
+    },
+  });
+  tl.addLabel("zz", "<");
   left.forEach((zip, i) => {
-    const normalizedDeltaY = i * 25 + i * i;
-    const rotation = (-45 * i) / (left.length * 2);
     if (isOpened(y, zip, i)) {
-      gsap.to(zip, {
-        pixi: {
-          x: CANVAS_WIDTH / 2 - normalizedDeltaY,
-          rotation,        
-        },
-        
-        ease: "slow",
-      });
+      processLeftDown(tl, zip, i);
       indices.push(i);
-      gsap.to(right[i], {
-        pixi: {
-          x: CANVAS_WIDTH / 2 + normalizedDeltaY,
-          rotation: -180 - rotation,
-         
-        },
-        ease: "slow",
-      });
-      gsap.to(zipper, {
-        pixi: { y: indices.length * 50 + 100 },
-        ease: "none",
-      });
+      processRightDown(tl, i);
     }
   });
+}
+
+function processRightDown(tl: gsap.core.Timeline, i: number) {
+  const normalizedDeltaY = i * 25 + i * i;
+  const rotation = (-45 * i) / (left.length * 2);
+  tl.to(
+    right[i],
+    {
+      pixi: {
+        x: CANVAS_WIDTH / 2 + normalizedDeltaY,
+        rotation: -180 - rotation,
+        ease: "linear",
+      },
+    },
+    "zz"
+  );
+}
+
+function processLeftDown(tl: gsap.core.Timeline, zip: PIXI.Graphics, i) {
+  const normalizedDeltaY = i * 25 + i * i;
+  const rotation = (-45 * i) / (left.length * 2);
+  tl.to(
+    zip,
+    {
+      pixi: {
+        x: CANVAS_WIDTH / 2 - normalizedDeltaY,
+        rotation,
+        ease: "linear",
+      },
+    },
+    "zz"
+  );
 }
 
 function isClosed(y: number, zip: PIXI.Graphics, i: number) {
