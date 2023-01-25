@@ -67,3 +67,17 @@ export function createTrapezoid(x, y, color) {
   trapezoid.endFill();
   return trapezoid;
 }
+
+export function createZipper() {
+  const verticalOffset = 40;
+  const zipperRadius = 25;
+  const zipperColor = 0x4a4f25;
+  const zipper = createCircle(
+    CANVAS_WIDTH / 2,
+    CANVAS_HEIGHT - verticalOffset,
+    zipperRadius,
+    zipperColor
+  );
+  zipper.alpha = 0.9;
+  return zipper;
+}

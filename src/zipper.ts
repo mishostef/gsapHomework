@@ -2,7 +2,12 @@ import * as PIXI from "pixi.js";
 import { CANVAS_WIDTH, CANVAS_HEIGHT } from "./constants";
 import { gsap } from "gsap";
 import { PixiPlugin } from "gsap/PixiPlugin";
-import { createGrid, createInteractiveBg, createTrapezoid } from "./utils";
+import {
+  createGrid,
+  createInteractiveBg,
+  createTrapezoid,
+  createZipper,
+} from "./utils";
 const verOffset = 30;
 const zipDist = 15;
 let mouseLastY = CANVAS_HEIGHT;
@@ -24,6 +29,9 @@ const grid = createGrid();
 app.stage.addChild(grid);
 
 const [left, right] = getTrapezoids();
+const zipper = createZipper();
+app.stage.addChild(zipper);
+
 let indices = [];
 bg.on("mousemove", ({ globalX: x, globalY: y }) => {
   if (y > CANVAS_HEIGHT) {
@@ -42,6 +50,7 @@ bg.on("mousemove", ({ globalX: x, globalY: y }) => {
   } else if (direction === "up") {
     onMouseMovingUp(y);
   }
+  console.log(indices);
 });
 
 function onMouseMovingUp(y: number) {
@@ -55,7 +64,12 @@ function onMouseMovingUp(y: number) {
         pixi: { x: CANVAS_WIDTH / 2, rotation: -180 },
         ease: "none",
       });
+
       indices = indices.filter((index) => index !== i);
+      gsap.to(zipper, {
+        pixi: { y: (indices.length + 1) * 50 },
+        ease: "none",
+      });
     }
   });
 }
@@ -68,17 +82,22 @@ function onMouseMovingDown(y: number) {
       gsap.to(zip, {
         pixi: {
           x: CANVAS_WIDTH / 2 - normalizedDeltaY,
-          rotation,
+          rotation,        
         },
-        ease: "none",
+        
+        ease: "slow",
       });
       indices.push(i);
-
       gsap.to(right[i], {
         pixi: {
           x: CANVAS_WIDTH / 2 + normalizedDeltaY,
           rotation: -180 - rotation,
+         
         },
+        ease: "slow",
+      });
+      gsap.to(zipper, {
+        pixi: { y: indices.length * 50 + 100 },
         ease: "none",
       });
     }
